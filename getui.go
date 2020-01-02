@@ -93,7 +93,7 @@ func IGtTransmissionTemplate(payload *Payload) (*Transmission, *PushInfo, error)
 }
 
 // 根据用户cid推送
-func (g *GeTuiPush) SendByCid(cid string, payload *Payload) error {
+func (g *GeTuiPush) SendByCid(cid string, payload *Payload) (*PushSingleResult, error) {
 
 	// 获取签名
 	token, _ := GetGeTuiToken(g.Config.AppId, g.Config.AppKey, g.Config.MasterSecret)
@@ -106,7 +106,7 @@ func (g *GeTuiPush) SendByCid(cid string, payload *Payload) error {
 	// 推送模板
 	template, pushInfo, err := IGtTransmissionTemplate(payload)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	pushSingleParam := &PushSingleParam{
@@ -119,16 +119,14 @@ func (g *GeTuiPush) SendByCid(cid string, payload *Payload) error {
 
 	res, err := PushSingle(g.Config.AppId, token, pushSingleParam)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	fmt.Println(res)
-
-	return nil
+	return res, nil
 }
 
 // 根据用户cids批量推送
-func (g *GeTuiPush) SendByCids(cids []string, payload *Payload) error {
+func (g *GeTuiPush) SendByCids(cids []string, payload *Payload) (*PushListResult, error) {
 
 	// 获取签名
 	token, _ := GetGeTuiToken(g.Config.AppId, g.Config.AppKey, g.Config.MasterSecret)
@@ -141,7 +139,7 @@ func (g *GeTuiPush) SendByCids(cids []string, payload *Payload) error {
 	// 推送模板
 	template, pushInfo, err := IGtTransmissionTemplate(payload)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// a. 先调用save_list_body保存消息共同体
@@ -153,11 +151,11 @@ func (g *GeTuiPush) SendByCids(cids []string, payload *Payload) error {
 
 	res, err := SaveListBody(g.Config.AppId, token, saveListBodyParam)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if res.Result != "ok" {
-		return errors.New(fmt.Sprintf("获取contentId失败:%s,%s", res.Result, res.Desc))
+		return nil, errors.New(fmt.Sprintf("获取contentId失败:%s,%s", res.Result, res.Desc))
 	}
 
 	taskid := res.TaskId
@@ -172,16 +170,14 @@ func (g *GeTuiPush) SendByCids(cids []string, payload *Payload) error {
 
 	res2, err := PushList(g.Config.AppId, token, pushListParam)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	fmt.Println(res2)
-
-	return nil
+	return res2, nil
 }
 
 // 推送给所有人
-func (g *GeTuiPush) SendAll(payload *Payload) error {
+func (g *GeTuiPush) SendAll(payload *Payload) (*PushAppResult, error) {
 
 	// 获取签名
 	token, _ := GetGeTuiToken(g.Config.AppId, g.Config.AppKey, g.Config.MasterSecret)
@@ -194,7 +190,7 @@ func (g *GeTuiPush) SendAll(payload *Payload) error {
 	// 推送模板
 	template, pushInfo, err := IGtTransmissionTemplate(payload)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	conditions := Condition{}
 	conditions = append(conditions, AppCondition{
@@ -211,12 +207,10 @@ func (g *GeTuiPush) SendAll(payload *Payload) error {
 
 	res, err := PushApp(g.Config.AppId, token, pushAppParam)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	fmt.Println(res)
-
-	return nil
+	return res, nil
 }
 
 // 获取推送结果接口
