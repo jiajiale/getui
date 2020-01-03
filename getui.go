@@ -17,10 +17,10 @@ type GetuiConfig struct {
 
 // 消息payload，根据业务自定义
 type Payload struct {
-	PushTitle    string `json:"push_title"`
-	PushBody     string `json:"push_body"`
-	IsShowNotify string `json:"is_show_notify"`
-	Ext          string `json:"ext"`
+	PushTitle    string                 `json:"push_title"`
+	PushBody     string                 `json:"push_body"`
+	IsShowNotify string                 `json:"is_show_notify"`
+	Ext          map[string]interface{} `json:"ext"`
 }
 
 // 个推
